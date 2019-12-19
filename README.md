@@ -1,2 +1,2 @@
 Sistema de gerenciamento de produtos.
-Product management system
+(Product management system)

@@ -11,8 +11,11 @@ class Produtos extends Component{
         this.state={
             categorias: []
         }
+        this.handleNewCategoria = this.handleNewCategoria.bind(this)
+        this.loadCategorias = this.loadCategorias.bind(this)
+        this.renderCategoria = this.renderCategoria.bind(this)
     }
-    componentDidMount(){
+    loadCategorias(){
         axios
             .get('http://localhost:3001/categorias')
             .then(res => {
@@ -21,12 +24,36 @@ class Produtos extends Component{
                 })
             })
     }
+    componentDidMount(){
+        this.loadCategorias() 
+    }
+    removeCategoria(categoria){
+        axios
+            .delete('http://localhost:3001/categorias/'+categoria.id)
+            .then((res) => this.loadCategorias())
+    }
     renderCategoria(cat){
         return (
-            <li key={cat.id}>
+            <li className='list-group-item' key={cat.id}>
                 <Link to={`/produtos/categoria/${cat.id}`}>{cat.categoria}</Link>
+                <button className='btn btn-danger' onClick={()=>this.removeCategoria(cat)}>
+                    <span className='glyphicon glyphicon-remove'></span>
+                </button>
             </li>
         )
+    }
+    handleNewCategoria(key){
+        if(key.keyCode === 13){
+            axios
+                .post('http://localhost:3001/categorias',
+                {
+                    categoria: this.refs.categoria.value
+                })
+                .then(res => {
+                    this.refs.categoria.value = ''
+                    this.loadCategorias()
+                })                
+        }
     }
     render(){
         const {match} = this.props
@@ -36,9 +63,18 @@ class Produtos extends Component{
                 <div className='row'>
                     <div className='col-sm-2'>
                         <h3>Categorias</h3>
-                        <ul>
+                        <ul className='list-group'>
                             {categorias.map(this.renderCategoria)}
                         </ul>
+                        <div className='well well-sm'>
+                            <input 
+                                className='form-control'
+                                onKeyUp={this.handleNewCategoria}
+                                type='text' 
+                                ref='categoria' 
+                                placeholder='Nova Categoria' 
+                            />
+                        </div>
     
                     </div>
                 

@@ -1,41 +1,27 @@
 import React, { Component } from 'react'
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
-import axios from 'axios'
 
 import ProdutosHome from './ProdutosHome'
 import Categoria from './Categoria'
-import Api from '../Api'
 
 class Produtos extends Component{
     constructor(props){
         super(props)
-        this.state={
-            categorias: []
-        }
-        this.handleNewCategoria = this.handleNewCategoria.bind(this)
-        this.loadCategorias = this.loadCategorias.bind(this)
+
         this.renderCategoria = this.renderCategoria.bind(this)
+        this.handleNewCategoria = this.handleNewCategoria.bind(this)
+        
     }
-    loadCategorias(){
-        Api.loadCategorias()
-            .then(res => {
-                this.setState({
-                    categorias: res.data
-                })
-            })
-    }
+
     componentDidMount(){
-        this.loadCategorias() 
+        this.props.loadCategorias() 
     }
-    removeCategoria(categoria){
-        Api.deleteCategorias(categoria.id)
-            .then((res) => this.loadCategorias())
-    }
+
     renderCategoria(cat){
         return (
             <li className='list-group-item' key={cat.id}>
                 <Link to={`/produtos/categoria/${cat.id}`}>{cat.categoria}</Link>
-                <button className='btn btn-danger' onClick={()=>this.removeCategoria(cat)}>
+                <button className='btn btn-danger' onClick={()=>this.props.removeCategoria(cat)}>
                     <span className='glyphicon glyphicon-remove'></span>
                 </button>
             </li>
@@ -43,20 +29,15 @@ class Produtos extends Component{
     }
     handleNewCategoria(key){
         if(key.keyCode === 13){
-            axios
-                .post('http://localhost:3001/categorias',
-                {
-                    categoria: this.refs.categoria.value
-                })
-                .then(res => {
-                    this.refs.categoria.value = ''
-                    this.loadCategorias()
-                })                
+            this.props.createCategoria({
+                categoria: this.refs.categoria.value
+            })
+            this.refs.categoria.value = ''               
         }
     }
     render(){
-        const {match} = this.props
-        const { categorias } = this.state 
+        const {match, categorias} = this.props
+
         return(
             <div className='container'>
                 <div className='row'>
